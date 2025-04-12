@@ -66,29 +66,32 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
-      <div className="max-w-2xl w-full bg-white rounded-2xl shadow-xl p-6">
-        <h1 className="text-4xl font-bold mb-4 text-center text-green-600">
-          oto hana
-        </h1>
-        <p className="text-center text-gray-600 mb-6">
-          Tell me how you feel. I’ll craft a playlist for your mood.
-        </p>
+        {/* Title */}
+        <h1 className="text-4xl font-bold mb-4 text-green-600">oto hana</h1>
+        <p className="text-gray-600 mb-6">Tell me how you're feeling.</p>
 
-        {!authenticated ? (
+        {/* Login Button */}
+        {!authenticated && (
           <button
             onClick={handleLogin}
-            className="w-full bg-blue-500 text-white py-3 rounded-xl hover:bg-blue-600 transition"
+            className="w-24 h-24 bg-transparent border-none focus:outline-none"
           >
-            Log in to Spotify to get started
+            <img
+              src="/flower.png"
+              alt="Login with Spotify"
+              className="w-full h-full hover:scale-110 transition-transform"
+            />
           </button>
-        ) : (
+        )}
+
+        {authenticated && (
           <>
             <textarea
               value={chat}
               onChange={(e) => setChat(e.target.value)}
-              placeholder="Tell me how your'e feeling."
-              className="w-full h-40 border border-gray-300 rounded-lg p-3 mb-4 resize-none focus:outline-none focus:ring-2 focus:ring-green-400"
-            />
+              placeholder="Tell me how you're feeling."
+              className="w-full h-40 p-3 mb-4 resize-none border-none bg-transparent focus:outline-none"
+            ></textarea>
 
             <button
               onClick={handleSubmit}
@@ -122,6 +125,5 @@ export default function App() {
           </div>
         )}
       </div>
-    </div>
   );
 }
