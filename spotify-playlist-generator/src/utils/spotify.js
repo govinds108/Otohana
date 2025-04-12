@@ -64,36 +64,77 @@ export async function handleAuthorizationCode(code) {
   spotifyApi.setRefreshToken(data.refresh_token);
 }
 
-// export async function handleAuthorizationCode(code) {
-//   const data = await spotifyApi.authorizationCodeGrant(code);
-//   spotifyApi.setAccessToken(data.body["access_token"]);
-//   spotifyApi.setRefreshToken(data.body["refresh_token"]);
+// export async function createPlaylistForMood(mood) {
+//   console.log("Access Token:", spotifyApi.getAccessToken());
+
+//   const me = await spotifyApi.getMe();
+//   console.log("User Info:", me.body);
+
+//   const playlist = await spotifyApi.createPlaylist(
+//     `${mood.charAt(0).toUpperCase() + mood.slice(1)} Vibes`,
+//     { public: true }
+//   );
+
+//   const moodToGenre = {
+//     happy: "pop",
+//     sad: "acoustic",
+//     angry: "metal",
+//     chill: "lo-fi",
+//     energetic: "edm",
+//   };
+
+//   const genre = moodToGenre[mood] || "pop";
+//   const tracks = await spotifyApi.searchTracks(`genre:${genre}`, { limit: 10 }); // Opportunity to fine tune using ML
+
+//   const uris = tracks.body.tracks.items.map((track) => track.uri);
+//   await spotifyApi.addTracksToPlaylist(playlist.body.id, uris);
+
+//   return playlist.body.external_urls.spotify;
 // }
 
-export async function createPlaylistForMood(mood) {
-  console.log("Access Token:", spotifyApi.getAccessToken());
+export async function addSongsToPlaylist(playlistId, songs) {
+  try {
+    const uris = [];
 
-  const me = await spotifyApi.getMe();
-  console.log("User Info:", me.body);
+    for (const song of songs) {
+      const searchResult = await spotifyApi.searchTracks(song, { limit: 1 });
+      if (searchResult.body.tracks.items.length > 0) {
+        uris.push(searchResult.body.tracks.items[0].uri);
+      } else {
+        console.warn(`Song not found on Spotify: ${song}`);
+      }
+    }
 
-  const playlist = await spotifyApi.createPlaylist(
-    `${mood.charAt(0).toUpperCase() + mood.slice(1)} Vibes`,
-    { public: true }
-  );
+    if (uris.length > 0) {
+      await spotifyApi.addTracksToPlaylist(playlistId, uris);
+      console.log(`Successfully added ${uris.length} songs to the playlist.`);
+    } else {
+      console.warn("No valid songs found to add to the playlist.");
+    }
+  } catch (error) {
+    console.error("Failed to add songs to playlist:", error);
+    throw new Error("Error adding songs to playlist");
+  }
+}
 
-  const moodToGenre = {
-    happy: "pop",
-    sad: "acoustic",
-    angry: "metal",
-    chill: "lo-fi",
-    energetic: "edm",
-  };
+export async function createPlaylistWithSpecificSongs(mood, songs) {
+  try {
+    const me = await spotifyApi.getMe();
+    console.log("User Info:", me.body);
 
-  const genre = moodToGenre[mood] || "pop";
-  const tracks = await spotifyApi.searchTracks(`genre:${genre}`, { limit: 10 }); // Opportunity to fine tune using ML
+    const playlist = await spotifyApi.createPlaylist(
+      `${mood.charAt(0).toUpperCase() + mood.slice(1)} Vibes`,
+      { public: true }
+    );
 
-  const uris = tracks.body.tracks.items.map((track) => track.uri);
-  await spotifyApi.addTracksToPlaylist(playlist.body.id, uris);
+    console.log(`Created playlist: ${playlist.body.name}`);
 
-  return playlist.body.external_urls.spotify;
+    await addSongsToPlaylist(playlist.body.id, songs);
+
+    console.log(`Playlist created and songs added successfully!`);
+    return playlist.body.external_urls.spotify;
+  } catch (error) {
+    console.error("Failed to create playlist with specific songs:", error);
+    throw new Error("Error creating playlist with specific songs");
+  }
 }
