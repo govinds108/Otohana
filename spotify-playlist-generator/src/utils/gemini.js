@@ -46,3 +46,35 @@ export async function getSongsFromPrompt(prompt) {
     throw new Error("Invalid response format from generative AI");
   }
 }
+
+export async function getSimilarSongs(userLikedSongs) {
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+  const likedSongsString = userLikedSongs.map((song) => `"${song}"`).join(", ");
+  const prompt = `The user likes the following songs: [${likedSongsString}]. Generate a list of 10 songs that includes these songs and additional songs that are similar to them. Return the response in array format:
+      [
+        "Song Title 1",
+        "Song Title 2",
+        ...
+        "Song Title 10"
+      ]`;
+
+  const result = await model.generateContent(prompt);
+
+  try {
+    // Clean up the response to remove any extra formatting
+    const rawResponse = result.response.text();
+    const cleanedResponse = rawResponse
+      .replace(/```json\n/, "") // Remove the opening backticks and "json" tag
+      .replace(/\n```/, "") // Remove the closing backticks
+      .trim(); // Trim any extra whitespace
+
+    // Parse the cleaned response as JSON
+    const songs = JSON.parse(cleanedResponse);
+    console.log("GEMINI", songs);
+    return songs;
+  } catch (error) {
+    console.error("Failed to parse similar songs response:", error);
+    throw new Error("Invalid response format from generative AI");
+  }
+}
