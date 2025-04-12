@@ -61,7 +61,9 @@ export async function handleAuthorizationCode(code) {
 export async function createPlaylistWithSpecificSongs(
   mood,
   songs,
-  accessToken
+  accessToken,
+  title,
+  description
 ) {
   if (!accessToken) {
     throw new Error("No access token provided");
@@ -92,14 +94,13 @@ export async function createPlaylistWithSpecificSongs(
     }
     // spotifyApi.setAccessToken(accessToken);
 
-    const playlist = await spotifyApi.createPlaylist(
-      me.body.id,
-      `${mood.charAt(0).toUpperCase() + mood.slice(1)} Vibes`,
-      {
-        public: true,
-      }
-    );
+    console.log("TITLE", title);
+    console.log("Description", description);
 
+    const playlist = await spotifyApi.createPlaylist(me.body.id, `${title}`, {
+      public: true,
+      description: `${description}`,
+    });
     console.log(`Created playlist: ${playlist.body.name}`);
 
     console.log("uris", uris);

@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import {
   getMoodFromConversation,
+  getPlayListDescription,
+  getPlaylistTitleFromPrompt,
   getSongsFromPrompt,
 } from "../utils/gemini";
 import {
@@ -16,6 +18,8 @@ export default function App() {
   const [chat, setChat] = useState("");
   const [playlistUrl, setPlaylistUrl] = useState(null);
   const [mood, setMood] = useState(null);
+  const [title, setTitle] = useState(null);
+  const [description, setDescription] = useState(null);
   const [loading, setLoading] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
   const [songs, setSongs] = useState([]);
@@ -60,9 +64,13 @@ export default function App() {
 
     try {
       const moodResult = await getMoodFromConversation(chat);
-      const fetchedSongs = await getSongsFromPrompt(moodResult);
+      const fetchedSongs = await getSongsFromPrompt(chat, moodResult);
+      const playListTitle = await getPlaylistTitleFromPrompt(chat);
+      const playListDesc = await getPlayListDescription(chat, playListTitle);
       setMood(moodResult);
       setSongs(fetchedSongs);
+      setTitle(playListTitle);
+      setDescription(playListDesc);
     } catch (err) {
       console.error("Error generating playlist:", err);
       alert("Something went wrong! Check the console for more info.");
@@ -91,7 +99,9 @@ export default function App() {
       const playlist = await createPlaylistWithSpecificSongs(
         mood,
         selectedSongs,
-        token
+        token,
+        title,
+        description
       );
       setPlaylistUrl(playlist);
     } catch (err) {

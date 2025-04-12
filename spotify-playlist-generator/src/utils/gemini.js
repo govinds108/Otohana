@@ -8,18 +8,18 @@ export async function getMoodFromConversation(chatLog) {
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
   const result = await model.generateContent(
-    `Analyze the user's mood based on this chat: ${chatLog}. Return only the emotion in one word.`
+    `Analyze the user's mood based on this chat: ${chatLog}. Return only the emotion as a categorical mood (as specific as possible) the user is feeling on one word our a very short phrase (with no punctuation).`
   );
 
   console.log(result.response.text().trim().toLowerCase());
   return result.response.text().trim().toLowerCase();
 }
 
-export async function getSongsFromPrompt(prompt) {
+export async function getSongsFromPrompt(prompt, mood) {
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
   const result = await model.generateContent(
-    `Generate a list of 10 songs that match this prompt: "${prompt}". It is critical to return your response in array format for further processing:
+    `Generate a list of 10 songs that match this prompt: "${prompt}" and fit the mood of ${mood}. It is critical to return your response in array format for further processing:
       [
         "Song Title 1",
         "Song Title 2",
@@ -76,5 +76,39 @@ export async function getSimilarSongs(userLikedSongs) {
   } catch (error) {
     console.error("Failed to parse similar songs response:", error);
     throw new Error("Invalid response format from generative AI");
+  }
+}
+
+export async function getPlaylistTitleFromPrompt(prompt) {
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+  const result = await model.generateContent(
+    `Create a creative and catchy playlist title based on this prompt: "${prompt}". Please select only one mood, which fits the tone and mood of the user's input. Do not provide multiple options, make a selection for the user. Format your response to only be the title, no additional characters. The only text you respond with should only be the title.`
+  );
+
+  try {
+    const title = result.response.text().trim();
+    console.log("Generated Playlist Title from Prompt:", title);
+    return title;
+  } catch (error) {
+    console.error("Failed to generate playlist title from prompt:", error);
+    throw new Error("Error generating playlist title from prompt");
+  }
+}
+
+export async function getPlayListDescription(prompt, title) {
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+  const result = await model.generateContent(
+    `Create a creative and catchy playlist description for a music playlist based on this prompt: "${prompt}". The title of this playlist will be "${title}".  Do not provide multiple options, make a selection for the user. Format your response to only be the title, no additional characters. Plase do not include the title in the description of the playlist.`
+  );
+
+  try {
+    const title = result.response.text().trim();
+    console.log("Generated Playlist Title from Prompt:", title);
+    return title;
+  } catch (error) {
+    console.error("Failed to generate playlist title from prompt:", error);
+    throw new Error("Error generating playlist title from prompt");
   }
 }
