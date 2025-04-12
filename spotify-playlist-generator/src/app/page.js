@@ -65,7 +65,7 @@ export default function App() {
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
       <div className="max-w-2xl w-full bg-white rounded-2xl shadow-xl p-6">
         <h1 className="text-4xl font-bold mb-4 text-center text-green-600">
-          🎧 VibeCraft
+          oto hana
         </h1>
         <p className="text-center text-gray-600 mb-6">
           Tell me how you feel. I’ll craft a playlist for your mood.
@@ -76,14 +76,14 @@ export default function App() {
             onClick={handleLogin}
             className="w-full bg-blue-500 text-white py-3 rounded-xl hover:bg-blue-600 transition"
           >
-            Log in to Spotify 🎵
+            Log in to Spotify to get started
           </button>
         ) : (
           <>
             <textarea
               value={chat}
               onChange={(e) => setChat(e.target.value)}
-              placeholder="Today felt like a rollercoaster..."
+              placeholder="Tell me how your'e feeling."
               className="w-full h-40 border border-gray-300 rounded-lg p-3 mb-4 resize-none focus:outline-none focus:ring-2 focus:ring-green-400"
             />
 
@@ -114,7 +114,7 @@ export default function App() {
               rel="noopener noreferrer"
               className="inline-block mt-2 text-blue-500 hover:underline"
             >
-              Open your Spotify playlist 🔗
+              Lets see your new playlist!
             </a>
           </div>
         )}

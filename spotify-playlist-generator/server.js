@@ -9,8 +9,8 @@ const handle = app.getRequestHandler();
 
 // Load SSL certificate and key
 const httpsOptions = {
-  key: readFileSync("./localhost-key.pem"),
-  cert: readFileSync("./localhost.pem"),
+  key: readFileSync("/Users/helebkat/bitcamp 2025/Otohana/spotify-playlist-generator/localhost-key.pem"),
+  cert: readFileSync("/Users/helebkat/bitcamp 2025/Otohana/spotify-playlist-generator/localhost-cert.pem"),
 };
 
 app.prepare().then(() => {

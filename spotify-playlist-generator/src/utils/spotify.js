@@ -1,5 +1,4 @@
 import SpotifyWebApi from "spotify-web-api-node";
-require("dotenv").config();
 
 console.log(process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID);
 console.log(process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_SECRET);
