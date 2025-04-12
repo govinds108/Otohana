@@ -11,20 +11,6 @@ const spotifyApi = new SpotifyWebApi({
   redirectUri: process.env.NEXT_PUBLIC_SPOTIFY_REDIRECT_URI,
 });
 
-// console.log("Spotify API Instance:", spotifyApi);
-// console.log(
-//   "createAuthorizeURL exists:",
-//   typeof spotifyApi.createAuthorizeURL === "function"
-// );
-
-// SpotifyWebApi._addMethods(spotifyApi);
-// export function getAuthorizationUrl() {
-//   const scopes = ["playlist-modify-public", "playlist-modify-private"];
-//   const state = "some-random-state"; // You can generate this dynamically
-//   return spotifyApi.createAuthorizeURL(scopes, state);
-// }
-console.log("Spotify API Instance Methods:", Object.keys(spotifyApi));
-
 export function getAuthorizationUrl() {
   const clientId = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID;
   const redirectUri = process.env.NEXT_PUBLIC_SPOTIFY_REDIRECT_URI;
@@ -47,7 +33,9 @@ export async function handleAuthorizationCode(code) {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Basic ${btoa(`${clientId}:${clientSecret}`)}`,
+      Authorization: `Basic ${Buffer.from(
+        `${clientId}:${clientSecret}`
+      ).toString("base64")}`,
     },
     body: new URLSearchParams({
       grant_type: "authorization_code",
@@ -57,82 +45,69 @@ export async function handleAuthorizationCode(code) {
   });
 
   const data = await response.json();
+
   if (!response.ok) {
     throw new Error(`Failed to exchange authorization code: ${data.error}`);
   }
 
-  spotifyApi.setAccessToken(data.access_token);
-  spotifyApi.setRefreshToken(data.refresh_token);
+  return {
+    accessToken: data.access_token,
+    refreshToken: data.refresh_token,
+    expiresIn: data.expires_in,
+  };
 }
 
-// export async function createPlaylistForMood(mood) {
-//   console.log("Access Token:", spotifyApi.getAccessToken());
-
-//   const me = await spotifyApi.getMe();
-//   console.log("User Info:", me.body);
-
-//   const playlist = await spotifyApi.createPlaylist(
-//     `${mood.charAt(0).toUpperCase() + mood.slice(1)} Vibes`,
-//     { public: true }
-//   );
-
-//   const moodToGenre = {
-//     happy: "pop",
-//     sad: "acoustic",
-//     angry: "metal",
-//     chill: "lo-fi",
-//     energetic: "edm",
-//   };
-
-//   const genre = moodToGenre[mood] || "pop";
-//   const tracks = await spotifyApi.searchTracks(`genre:${genre}`, { limit: 10 }); // Opportunity to fine tune using ML
-
-//   const uris = tracks.body.tracks.items.map((track) => track.uri);
-//   await spotifyApi.addTracksToPlaylist(playlist.body.id, uris);
-
-//   return playlist.body.external_urls.spotify;
-// }
-
-export async function addSongsToPlaylist(playlistId, songs) {
-  try {
-    const uris = [];
-
-    for (const song of songs) {
-      const searchResult = await spotifyApi.searchTracks(song, { limit: 1 });
-      if (searchResult.body.tracks.items.length > 0) {
-        uris.push(searchResult.body.tracks.items[0].uri);
-      } else {
-        console.warn(`Song not found on Spotify: ${song}`);
-      }
-    }
-
-    if (uris.length > 0) {
-      await spotifyApi.addTracksToPlaylist(playlistId, uris);
-      console.log(`Successfully added ${uris.length} songs to the playlist.`);
-    } else {
-      console.warn("No valid songs found to add to the playlist.");
-    }
-  } catch (error) {
-    console.error("Failed to add songs to playlist:", error);
-    throw new Error("Error adding songs to playlist");
+export async function createPlaylistWithSpecificSongs(
+  mood,
+  songs,
+  accessToken
+) {
+  if (!accessToken) {
+    throw new Error("No access token provided");
   }
-}
 
-export async function createPlaylistWithSpecificSongs(mood, songs) {
+  spotifyApi.setAccessToken(accessToken);
   try {
     const me = await spotifyApi.getMe();
     console.log("User Info:", me.body);
 
+    const uris = [];
+
+    console.log("songs", songs);
+
+    for (const song of songs) {
+      //   spotifyApi.setAccessToken(accessToken);
+
+      const searchResult = await spotifyApi.searchTracks(song, { limit: 1 });
+      if (searchResult.body.tracks.items.length > 0) {
+        const trackUri = searchResult.body.tracks.items[0].uri;
+        uris.push(trackUri);
+      } else {
+        console.warn(`Song not found on Spotify: ${song}`);
+      }
+    }
+    // spotifyApi.setAccessToken(accessToken);
+
     const playlist = await spotifyApi.createPlaylist(
+      me.body.id,
       `${mood.charAt(0).toUpperCase() + mood.slice(1)} Vibes`,
-      { public: true }
+      {
+        public: true,
+      }
     );
 
     console.log(`Created playlist: ${playlist.body.name}`);
 
-    await addSongsToPlaylist(playlist.body.id, songs);
+    console.log("uris", uris);
+    if (uris.length > 0) {
+      spotifyApi.setAccessToken(accessToken);
 
-    console.log(`Playlist created and songs added successfully!`);
+      await spotifyApi.addTracksToPlaylist(playlist.body.id, uris);
+      console.log(`Added ${uris.length} songs to playlist`);
+    } else {
+      console.warn("No songs found to add.");
+    }
+
     return playlist.body.external_urls.spotify;
   } catch (error) {
     console.error("Failed to create playlist with specific songs:", error);
