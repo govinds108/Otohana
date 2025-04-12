@@ -5,9 +5,9 @@ import { getMoodFromConversation, getSongsFromPrompt } from "../utils/gemini";
 import {
   getAuthorizationUrl,
   handleAuthorizationCode,
-  createPlaylistForMood,
   createPlaylistWithSpecificSongs,
 } from "../utils/spotify";
+import { useSwipeable } from "react-swipeable";
 
 export default function App() {
   const [chat, setChat] = useState("");
@@ -15,17 +15,20 @@ export default function App() {
   const [mood, setMood] = useState(null);
   const [loading, setLoading] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
+  const [songs, setSongs] = useState([]);
+  const [selectedSongs, setSelectedSongs] = useState([]);
+  const [currentSongIndex, setCurrentSongIndex] = useState(0);
 
-  // Check for authorization code in the URL
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get("code");
 
     if (code) {
       handleAuthorizationCode(code)
-        .then(() => {
+        .then(({ accessToken }) => {
+          localStorage.setItem("spotify_access_token", accessToken);
           setAuthenticated(true);
-          window.history.replaceState({}, document.title, "/"); // Clean up the URL
+          window.history.replaceState({}, document.title, "/");
         })
         .catch((err) => {
           console.error("Error handling authorization code:", err);
@@ -36,7 +39,7 @@ export default function App() {
 
   const handleLogin = () => {
     const authUrl = getAuthorizationUrl();
-    window.location.href = authUrl; // Redirect to Spotify login
+    window.location.href = authUrl;
   };
 
   const handleSubmit = async () => {
@@ -48,14 +51,15 @@ export default function App() {
     setLoading(true);
     setPlaylistUrl(null);
     setMood(null);
+    setSongs([]);
+    setSelectedSongs([]);
+    setCurrentSongIndex(0);
 
     try {
       const moodResult = await getMoodFromConversation(chat);
-      const songs = await getSongsFromPrompt(moodResult);
-      // const playlist = await createPlaylistForMood(moodResult);
-      const playlist = await createPlaylistWithSpecificSongs(moodResult, songs);
+      const fetchedSongs = await getSongsFromPrompt(moodResult);
       setMood(moodResult);
-      setPlaylistUrl(playlist);
+      setSongs(fetchedSongs);
     } catch (err) {
       console.error("Error generating playlist:", err);
       alert("Something went wrong! Check the console for more info.");
@@ -63,6 +67,44 @@ export default function App() {
       setLoading(false);
     }
   };
+
+  const handleSwipe = (direction) => {
+    const currentSong = songs[currentSongIndex];
+    if (direction === "right") {
+      setSelectedSongs((prev) => [...prev, currentSong]);
+    }
+    setCurrentSongIndex((prev) => prev + 1);
+  };
+
+  const handleCreatePlaylist = async () => {
+    if (selectedSongs.length === 0) {
+      alert("No songs selected for the playlist.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("spotify_access_token");
+      const playlist = await createPlaylistWithSpecificSongs(
+        mood,
+        selectedSongs,
+        token
+      );
+      setPlaylistUrl(playlist);
+    } catch (err) {
+      console.error("Error creating playlist:", err);
+      alert("Something went wrong! Check the console for more info.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: () => handleSwipe("left"),
+    onSwipedRight: () => handleSwipe("right"),
+    preventDefaultTouchmoveEvent: true,
+    trackMouse: true,
+  });
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
@@ -109,6 +151,35 @@ export default function App() {
             <p className="text-2xl font-semibold text-green-600 capitalize">
               {mood}
             </p>
+          </div>
+        )}
+
+        {songs.length > 0 && currentSongIndex < songs.length && (
+          <div
+            {...swipeHandlers}
+            className="mt-6 bg-gray-200 p-6 rounded-lg shadow-lg text-center"
+          >
+            <p className="text-lg text-gray-700">Swipe to decide:</p>
+            <p className="text-xl font-semibold text-green-600">
+              {songs[currentSongIndex]}
+            </p>
+            <p className="text-sm text-gray-500 mt-2">
+              Swipe right to add, left to skip.
+            </p>
+          </div>
+        )}
+
+        {currentSongIndex >= songs.length && songs.length > 0 && (
+          <div className="mt-6 text-center">
+            <p className="text-lg text-gray-700">
+              You've swiped through all the songs!
+            </p>
+            <button
+              onClick={handleCreatePlaylist}
+              className="w-full bg-green-500 text-white py-3 rounded-xl hover:bg-green-600 transition"
+            >
+              Create Playlist 🎶
+            </button>
           </div>
         )}
 
