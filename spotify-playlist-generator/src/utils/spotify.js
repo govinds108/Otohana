@@ -1,4 +1,5 @@
 import SpotifyWebApi from "spotify-web-api-node";
+import { getSimilarSongs } from "./gemini";
 
 console.log(process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID);
 console.log(process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_SECRET);
@@ -67,14 +68,17 @@ export async function createPlaylistWithSpecificSongs(
 
   spotifyApi.setAccessToken(accessToken);
   try {
+    const finalSongList = await getSimilarSongs(songs);
+    console.log("Final Song List:", finalSongList);
+
     const me = await spotifyApi.getMe();
     console.log("User Info:", me.body);
 
     const uris = [];
 
-    console.log("songs", songs);
+    console.log("songs", finalSongList);
 
-    for (const song of songs) {
+    for (const song of finalSongList) {
       //   spotifyApi.setAccessToken(accessToken);
 
       const searchResult = await spotifyApi.searchTracks(song, { limit: 1 });

@@ -1,7 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getMoodFromConversation, getSongsFromPrompt } from "../utils/gemini";
+import {
+  getMoodFromConversation,
+  getSongsFromPrompt,
+} from "../utils/gemini";
 import {
   getAuthorizationUrl,
   handleAuthorizationCode,
