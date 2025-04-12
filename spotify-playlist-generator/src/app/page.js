@@ -1,16 +1,49 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getMoodFromConversation } from "../utils/gemini";
-import { createPlaylistForMood } from "../utils/spotify";
+import {
+  getAuthorizationUrl,
+  handleAuthorizationCode,
+  createPlaylistForMood,
+} from "../utils/spotify";
 
 export default function App() {
   const [chat, setChat] = useState("");
   const [playlistUrl, setPlaylistUrl] = useState(null);
   const [mood, setMood] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [authenticated, setAuthenticated] = useState(false);
+
+  // Check for authorization code in the URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get("code");
+
+    if (code) {
+      handleAuthorizationCode(code)
+        .then(() => {
+          setAuthenticated(true);
+          window.history.replaceState({}, document.title, "/"); // Clean up the URL
+        })
+        .catch((err) => {
+          console.error("Error handling authorization code:", err);
+          alert("Failed to authenticate with Spotify. Please try again.");
+        });
+    }
+  }, []);
+
+  const handleLogin = () => {
+    const authUrl = getAuthorizationUrl();
+    window.location.href = authUrl; // Redirect to Spotify login
+  };
 
   const handleSubmit = async () => {
+    if (!authenticated) {
+      alert("Please log in to Spotify first.");
+      return;
+    }
+
     setLoading(true);
     setPlaylistUrl(null);
     setMood(null);
@@ -38,20 +71,31 @@ export default function App() {
           Tell me how you feel. I’ll craft a playlist for your mood.
         </p>
 
-        <textarea
-          value={chat}
-          onChange={(e) => setChat(e.target.value)}
-          placeholder="Today felt like a rollercoaster..."
-          className="w-full h-40 border border-gray-300 rounded-lg p-3 mb-4 resize-none focus:outline-none focus:ring-2 focus:ring-green-400"
-        />
+        {!authenticated ? (
+          <button
+            onClick={handleLogin}
+            className="w-full bg-blue-500 text-white py-3 rounded-xl hover:bg-blue-600 transition"
+          >
+            Log in to Spotify 🎵
+          </button>
+        ) : (
+          <>
+            <textarea
+              value={chat}
+              onChange={(e) => setChat(e.target.value)}
+              placeholder="Today felt like a rollercoaster..."
+              className="w-full h-40 border border-gray-300 rounded-lg p-3 mb-4 resize-none focus:outline-none focus:ring-2 focus:ring-green-400"
+            />
 
-        <button
-          onClick={handleSubmit}
-          disabled={loading || !chat.trim()}
-          className="w-full bg-green-500 text-white py-3 rounded-xl hover:bg-green-600 transition disabled:opacity-50"
-        >
-          {loading ? "Analyzing your vibe..." : "Generate Playlist 🎶"}
-        </button>
+            <button
+              onClick={handleSubmit}
+              disabled={loading || !chat.trim()}
+              className="w-full bg-green-500 text-white py-3 rounded-xl hover:bg-green-600 transition disabled:opacity-50"
+            >
+              {loading ? "Analyzing your vibe..." : "Generate Playlist 🎶"}
+            </button>
+          </>
+        )}
 
         {mood && (
           <div className="mt-6 text-center">
