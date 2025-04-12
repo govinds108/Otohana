@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getMoodFromConversation } from "../utils/gemini";
+import { getMoodFromConversation, getSongsFromPrompt } from "../utils/gemini";
 import {
   getAuthorizationUrl,
   handleAuthorizationCode,
   createPlaylistForMood,
+  createPlaylistWithSpecificSongs,
 } from "../utils/spotify";
 
 export default function App() {
@@ -50,7 +51,9 @@ export default function App() {
 
     try {
       const moodResult = await getMoodFromConversation(chat);
-      const playlist = await createPlaylistForMood(moodResult);
+      const songs = await getSongsFromPrompt(moodResult);
+      // const playlist = await createPlaylistForMood(moodResult);
+      const playlist = await createPlaylistWithSpecificSongs(moodResult, songs);
       setMood(moodResult);
       setPlaylistUrl(playlist);
     } catch (err) {
