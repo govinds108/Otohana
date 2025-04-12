@@ -107,23 +107,25 @@ export default function App() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
+    <div className="v16_34">
         {/* Title */}
-        <h1 className="text-4xl font-bold mb-4 text-green-600">oto hana</h1>
-        <p className="text-gray-600 mb-6">Tell me how you're feeling.</p>
+        <span className="v21_42">oto hana.</span>
+        <span className="v21_44">a spotify playlist generator</span>
 
         {/* Login Button */}
         {!authenticated && (
-          <button
-            onClick={handleLogin}
-            className="w-24 h-24 bg-transparent border-none focus:outline-none"
-          >
-            <img
-              src="/flower.png"
-              alt="Login with Spotify"
-              className="w-full h-full hover:scale-110 transition-transform"
-            />
-          </button>
+          <div className="v24_6">
+            <button
+              onClick={handleLogin}
+              className="w-full h-full bg-transparent border-none focus:outline-none"
+            >
+              <img
+                src="/flower.png"
+                alt="Login with Spotify"
+                className="w-full h-full hover:scale-110 transition-transform"
+              />
+            </button>
+          </div>
         )}
 
         {authenticated && (
