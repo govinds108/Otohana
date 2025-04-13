@@ -1,26 +1,136 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  --background:#FD93AA;
   --foreground: #171717;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-outfit);
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #FD93AA;
+    --foreground: #ffffff;
   }
 }
 
+* {
+  box-sizing: border-box;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  margin: 0; /* Remove default margin */
+  padding: 0; /* Remove default padding */
+  overflow: hidden; /* Prevent scrolling */
+}
+
+
+.v16_34,
+.v21_46 {
+  width: 100vw; 
+  height: 100vh; 
+  background: rgba(255, 255, 255, 1);
+  opacity: 1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+}
+
+.v21_42 {
+  width: 407px;
+  color: #FD93AA;
+  position: absolute;
+  top: 20%; /* Adjusted to center vertically */
+  left: 50%; /* Center horizontally */
+  transform: translate(-50%, -50%); /* Ensure proper centering */
+  font-family: Outfit;
+  font-weight: Regular;
+  font-size: 96px;
+  opacity: 1;
+  text-align: left;
+}
+
+.v21_44 {
+  width: 476px;
+  color: #FD93AA;
+  position: absolute;
+  top: 30%; /* Adjusted to center vertically below v21_42 */
+  left: 50%; /* Center horizontally */
+  transform: translate(-50%, -50%); /* Ensure proper centering */
+  font-family: Outfit;
+  font-weight: Regular;
+  font-size: 40px;
+  opacity: 1;
+  text-align: left;
+}
+
+.v24_6,
+.v25_261 {
+  width: 565px;
+  height: 465px;
+  background: url("/Users/helebkat/bitcamp2025/Otohana/spotify-playlist-generator/public/flower.png");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  opacity: 1;
+  position: absolute;
+  top: 60%; /* Adjusted to center vertically below v21_44 */
+  left: 50%; /* Center horizontally */
+  transform: translate(-50%, -50%); /* Ensure proper centering */
+  overflow: hidden;
+}
+
+/* Mood Input Page Styles */
+.v21_51 {
+  width: 85%;
+  height: 110px;
+  background: rgba(255,255,255,1);
+  opacity: 1;
+  position: absolute;
+  top: 558px;
+  left: 113px;
+  border: 4px solid #FD93AA;
+  border-top-left-radius: 51px;
+  border-top-right-radius: 51px;
+  border-bottom-left-radius: 51px;
+  border-bottom-right-radius: 51px;
+  overflow: hidden;
+}
+
+.v21_52 {
+  width: 457px;
+  color: #FD93AA;
+  position: absolute;
+  top: 588px;
+  left: 163px;
+  font-family: Outfit;
+  font-weight: Regular;
+  font-size: 40px;
+  opacity: 1;
+  text-align: left;
+}
+
+.name {
+  color: #fff;
+}
+
+.v25_263 {
+  width: 565px;
+  height: 465px;
+  background: url("/Users/helebkat/bitcamp2025/Otohana/spotify-playlist-generator/public/flower.png");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  opacity: 1;
+  position: absolute;
+  top: 93px;
+  left: 437px;
+  overflow: hidden;
 }

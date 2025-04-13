@@ -112,3 +112,20 @@ export async function getPlayListDescription(prompt, title) {
     throw new Error("Error generating playlist title from prompt");
   }
 }
+
+export async function getSongDescription(mood, title) {
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+  const result = await model.generateContent(
+    `Provide a short description of the song ${title} and describe how it relates to the mood of ${mood}. Keep this description short and cocise, it MUST be a few short phrases. It is very important not to provide or include any additional text (including headers) that is not related to the actual response requested.`
+  );
+
+  try {
+    const desc = result.response.text().trim();
+    return desc;
+  } catch (error) {
+    console.error("Failed to generate playlist desc from prompt:", error);
+    throw new Error("Error generating playlist desc from prompt");
+  }
+}
+
