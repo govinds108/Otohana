@@ -2,10 +2,6 @@ import SpotifyWebApi from "spotify-web-api-node";
 import { getSimilarSongs } from "./gemini";
 require("dotenv").config();
 
-console.log(process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID);
-console.log(process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_SECRET);
-console.log(process.env.NEXT_PUBLIC_SPOTIFY_REDIRECT_URI);
-
 const spotifyApi = new SpotifyWebApi({
   clientId: process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID,
   clientSecret: process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_SECRET,
@@ -72,18 +68,12 @@ export async function createPlaylistWithSpecificSongs(
   spotifyApi.setAccessToken(accessToken);
   try {
     const finalSongList = await getSimilarSongs(songs);
-    console.log("Final Song List:", finalSongList);
 
     const me = await spotifyApi.getMe();
-    console.log("User Info:", me.body);
 
     const uris = [];
 
-    console.log("songs", finalSongList);
-
     for (const song of finalSongList) {
-      //   spotifyApi.setAccessToken(accessToken);
-
       const searchResult = await spotifyApi.searchTracks(song, { limit: 1 });
       if (searchResult.body.tracks.items.length > 0) {
         const trackUri = searchResult.body.tracks.items[0].uri;
@@ -92,23 +82,16 @@ export async function createPlaylistWithSpecificSongs(
         console.warn(`Song not found on Spotify: ${song}`);
       }
     }
-    // spotifyApi.setAccessToken(accessToken);
-
-    console.log("TITLE", title);
-    console.log("Description", description);
 
     const playlist = await spotifyApi.createPlaylist(me.body.id, `${title}`, {
       public: true,
       description: `${description}`,
     });
-    console.log(`Created playlist: ${playlist.body.name}`);
 
-    console.log("uris", uris);
     if (uris.length > 0) {
       spotifyApi.setAccessToken(accessToken);
 
       await spotifyApi.addTracksToPlaylist(playlist.body.id, uris);
-      console.log(`Added ${uris.length} songs to playlist`);
     } else {
       console.warn("No songs found to add.");
     }

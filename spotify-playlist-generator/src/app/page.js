@@ -6,7 +6,7 @@ import {
   getPlayListDescription,
   getPlaylistTitleFromPrompt,
   getSongsFromPrompt,
-  getSongDescription
+  getSongDescription,
 } from "../utils/gemini";
 import {
   getAuthorizationUrl,
@@ -51,21 +51,21 @@ export default function App() {
     const fetchSongData = async () => {
       if (currentSongIndex < songs.length) {
         try {
-          const currentSong = songs[currentSongIndex]; // Get the current song
-          const description = await getSongDescription(mood, currentSong); // Fetch the description
+          const currentSong = songs[currentSongIndex];
+          const description = await getSongDescription(mood, currentSong);
           setSongDescription(description);
-          setIsSongDataReady(true); // Mark data as ready
+          setIsSongDataReady(true);
         } catch (err) {
           console.error("Error fetching song description:", err);
           setSongDescription("Unable to fetch song description.");
-          setIsSongDataReady(false); // Ensure data is not marked as ready
+          setIsSongDataReady(false);
         }
       } else {
-        setIsSongDataReady(false); // Reset readiness when no song is available
+        setIsSongDataReady(false);
       }
     };
 
-    setIsSongDataReady(false); // Reset readiness before fetching new data
+    setIsSongDataReady(false);
     fetchSongData();
   }, [currentSongIndex, mood, songs]);
 
@@ -140,14 +140,14 @@ export default function App() {
   const handleAddSong = () => {
     if (currentSongIndex < songs.length) {
       const currentSong = songs[currentSongIndex];
-      setSelectedSongs((prev) => [...prev, currentSong]); // Add the current song to the selected list
-      setCurrentSongIndex((prev) => prev + 1); // Move to the next song
+      setSelectedSongs((prev) => [...prev, currentSong]);
+      setCurrentSongIndex((prev) => prev + 1);
     }
   };
 
   const handleSkipSong = () => {
     if (currentSongIndex < songs.length) {
-      setCurrentSongIndex((prev) => prev + 1); // Skip the current song and move to the next
+      setCurrentSongIndex((prev) => prev + 1);
     }
   };
 
@@ -158,15 +158,8 @@ export default function App() {
     trackMouse: true,
   });
 
-  console.log("Current Song Index:", currentSongIndex);
-  console.log("Songs:", songs);
-  console.log("Selected Songs:", selectedSongs);
-  console.log("length songs", songs.length);
-  
   return (
-    
     <div className="v16_34">
-      {/* Title */}
       {!authenticated && (
         <>
           <span className="v21_42">oto hana.</span>
@@ -174,7 +167,6 @@ export default function App() {
         </>
       )}
 
-      {/* Login Button */}
       {!authenticated && (
         <div className="v24_6">
           <button
@@ -190,80 +182,81 @@ export default function App() {
         </div>
       )}
 
-    {authenticated && (
-      <div className="flex flex-col items-center justify-center pt-5">
-        <img
-          src="/flower.png"
-          alt="Flower"
-          className="w-90 h-90 mb-8" // Smaller to match Figma
-        />
+      {authenticated && (
+        <div className="flex flex-col items-center justify-center pt-5">
+          <img src="/flower.png" alt="Flower" className="w-90 h-90 mb-8" />
 
-        <div className="w-[1200px] px-4 -mt-15 flex flex-col items-center relative"> {/* Added relative for positioning */}
-          <textarea
-            value={chat}
-            onChange={(e) => setChat(e.target.value)}
-            placeholder="tell me how you're feeling."
-            className="w-full h-[130px] text-left text-[#FD93AA] placeholder-[#FD93AA] placeholder-opacity-20 text-[24px] font-normal font-[Outfit] bg-transparent border-[3px] border-[#FD93AA] rounded-xl px-8 py-2 pr-12 focus:outline-none resize-none overflow-y-auto"
-            style={{
-              boxShadow: "none",
-              lineHeight: "1.5", // Ensures consistent line spacing
-            }}
-          ></textarea>
+          <div className="w-[1200px] px-4 -mt-15 flex flex-col items-center relative">
+            <textarea
+              value={chat}
+              onChange={(e) => setChat(e.target.value)}
+              placeholder="tell me how you're feeling."
+              className="w-full h-[130px] text-left text-[#FD93AA] placeholder-[#FD93AA] placeholder-opacity-20 text-[24px] font-normal font-[Outfit] bg-transparent border-[3px] border-[#FD93AA] rounded-xl px-8 py-2 pr-12 focus:outline-none resize-none overflow-y-auto"
+              style={{
+                boxShadow: "none",
+                lineHeight: "1.5",
+              }}
+            ></textarea>
 
-          {/* Arrow Button */}
-          <button
-            onClick={handleSubmit}
-            disabled={loading || !chat.trim()}
-            className="absolute right-6 bottom-2 font-semibold text-[#FD93AA] w-12 h-12 rounded-full transition disabled:opacity-50 flex items-center justify-center"
-          >
-            <span className="text-3xl leading-none transition hover:text-[#FF6B8B]">&gt;</span> {/* Arrow changes color on hover */}
-          </button>
+            <button
+              onClick={handleSubmit}
+              disabled={loading || !chat.trim()}
+              className="absolute right-6 bottom-2 font-semibold text-[#FD93AA] w-12 h-12 rounded-full transition disabled:opacity-50 flex items-center justify-center"
+            >
+              <span className="text-3xl leading-none transition hover:text-[#FF6B8B]">
+                &gt;
+              </span>
+            </button>
+          </div>
         </div>
-      </div>
-    )}
-
+      )}
 
       {mood && (
         <div className="mt-6 text-center">
-          <p className="text-lg text-[#FF6B8B] font-[Outfit]">We felt your mood was:</p>
+          <p className="text-lg text-[#FF6B8B] font-[Outfit]">
+            We felt your mood was:
+          </p>
           <p className="text-2xl font-semibold text-[#FF6B8B] capitalize font-[Outfit]">
             {mood}
           </p>
         </div>
       )}
 
-      {songs.length > 0 && currentSongIndex < songs.length && isSongDataReady && (
-        <div className="mt-6 p-6 rounded-lg text-center flex items-center justify-center w-[600px] mx-auto bg-[#FD93AA] border-4 border-[#FD93AA]">
-          {/* Minus Button */}
-          <button
-            onClick={handleSkipSong}
-            className="bg-white text-[#FD93AA] w-12 h-12 rounded-full hover:bg-gray-200 transition text-2xl flex items-center justify-center font-[Outfit]"
-          >
-            <span className="font-bold font-[Outfit]">-</span> {/* Minus symbol */}
-          </button>
+      {songs.length > 0 &&
+        currentSongIndex < songs.length &&
+        isSongDataReady && (
+          <div className="mt-6 p-6 rounded-lg text-center flex items-center justify-center w-[600px] mx-auto bg-[#FD93AA] border-4 border-[#FD93AA]">
+            <button
+              onClick={handleSkipSong}
+              className="bg-white text-[#FD93AA] w-12 h-12 rounded-full hover:bg-gray-200 transition text-2xl flex items-center justify-center font-[Outfit]"
+            >
+              <span className="font-bold font-[Outfit]">-</span>
+            </button>
 
-          {/* Song Text */}
-          <div className="flex-1 text-center px-4 font-[Outfit]">
-            <p className="text-lg text-white font-[Outfit]">Do you want to add this song?</p>
-            <p className="text-xl font-semibold text-white font-[Outfit]">
-              {songs[currentSongIndex]}
-            </p>
-            <p className="text-sm text-white mt-2 font-[Outfit]">{songDescription}</p> {/* Song description */}
+            <div className="flex-1 text-center px-4 font-[Outfit]">
+              <p className="text-lg text-white font-[Outfit]">
+                Do you want to add this song?
+              </p>
+              <p className="text-xl font-semibold text-white font-[Outfit]">
+                {songs[currentSongIndex]}
+              </p>
+              <p className="text-sm text-white mt-2 font-[Outfit]">
+                {songDescription}
+              </p>
+            </div>
+
+            <button
+              onClick={handleAddSong}
+              className="bg-white text-[#FD93AA] w-12 h-12 rounded-full hover:bg-gray-200 transition text-2xl flex items-center justify-center font-[Outfit]"
+            >
+              <span className="font-bold font-[Outfit]">+</span>
+            </button>
           </div>
-
-          {/* Plus Button */}
-          <button
-            onClick={handleAddSong}
-            className="bg-white text-[#FD93AA] w-12 h-12 rounded-full hover:bg-gray-200 transition text-2xl flex items-center justify-center font-[Outfit]"
-          >
-            <span className="font-bold font-[Outfit]">+</span> {/* Plus symbol */}
-          </button>
-        </div>
-      )}
+        )}
 
       {currentSongIndex >= songs.length && songs.length > 0 && (
-        <div className="flex justify-center font-[Outfit]"> {/* Wrapper to center the parent container */}
-          <div className="w-[1200px] flex flex-col items-center justify-center mt-6 px-4 font-[Outfit]"> {/* Centered content */}
+        <div className="flex justify-center font-[Outfit]">
+          <div className="w-[1200px] flex flex-col items-center justify-center mt-6 px-4 font-[Outfit]">
             <p className="text-lg text-[#FF6B8B] font-[Outfit]">
               You've swiped through all the songs!
             </p>

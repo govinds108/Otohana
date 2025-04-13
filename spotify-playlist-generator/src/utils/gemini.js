@@ -1,7 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-console.log(process.env.NEXT_PUBLIC_GEMINI_API_KEY);
-
 const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY);
 
 export async function getMoodFromConversation(chatLog) {
@@ -11,7 +9,6 @@ export async function getMoodFromConversation(chatLog) {
     `Analyze the user's mood based on this chat: ${chatLog}. Return only the emotion as a categorical mood (as specific as possible) the user is feeling on one word our a very short phrase (with no punctuation).`
   );
 
-  console.log(result.response.text().trim().toLowerCase());
   return result.response.text().trim().toLowerCase();
 }
 
@@ -39,7 +36,6 @@ export async function getSongsFromPrompt(prompt, mood) {
 
     // Parse the cleaned response as JSON
     const songs = JSON.parse(cleanedResponse);
-    console.log(songs);
     return songs;
   } catch (error) {
     console.error("Failed to parse songs response:", error);
@@ -71,7 +67,6 @@ export async function getSimilarSongs(userLikedSongs) {
 
     // Parse the cleaned response as JSON
     const songs = JSON.parse(cleanedResponse);
-    console.log("GEMINI", songs);
     return songs;
   } catch (error) {
     console.error("Failed to parse similar songs response:", error);
@@ -88,7 +83,6 @@ export async function getPlaylistTitleFromPrompt(prompt) {
 
   try {
     const title = result.response.text().trim();
-    console.log("Generated Playlist Title from Prompt:", title);
     return title;
   } catch (error) {
     console.error("Failed to generate playlist title from prompt:", error);
@@ -105,7 +99,6 @@ export async function getPlayListDescription(prompt, title) {
 
   try {
     const title = result.response.text().trim();
-    console.log("Generated Playlist Title from Prompt:", title);
     return title;
   } catch (error) {
     console.error("Failed to generate playlist title from prompt:", error);
@@ -128,4 +121,3 @@ export async function getSongDescription(mood, title) {
     throw new Error("Error generating playlist desc from prompt");
   }
 }
-
